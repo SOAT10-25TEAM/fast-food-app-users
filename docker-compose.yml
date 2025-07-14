@@ -1,35 +1,28 @@
+version: "3.8"
+
 networks:
   soatdb:
 
 services:
-  db:
-    image: mysql
-    tty: true
-    container_name: db
+  mongo:
+    image: mongo:6
+    container_name: mongodb
     restart: always
+    ports:
+      - "27017:27017"
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: soat
-      MYSQL_PASSWORD: soat
-      MYSQL_DATABASE: soat_desafio
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
     networks:
       - soatdb
-    ports:
-      - "3306:3306"
+    volumes:
+      - mongo_data:/data/db
     healthcheck:
-      test:
-        [
-          "CMD",
-          "mysqladmin",
-          "ping",
-          "--host=localhost",
-          "--user=root",
-          "--password=root",
-        ]
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
       interval: 10s
       retries: 5
       start_period: 30s
-      timeout: 20s
+      timeout: 10s
 
   app:
     build:
@@ -42,13 +35,4 @@ services:
       - /app/node_modules
     environment:
       - NODE_ENV=development
-      - MYSQL_HOST=db
-      - MYSQL_USER=soat
-      - MYSQL_PASSWORD=soat
-      - MYSQL_DATABASE=soat_desafio
-    networks:
-      - soatdb
-    tty: true
-    depends_on:
-      db:
-        condition: service_healthy
+      - MONGO_URI=mongodb://localhost:27017/fastfood-users
