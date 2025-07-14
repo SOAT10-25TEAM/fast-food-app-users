@@ -1,21 +1,13 @@
-import "reflect-metadata";
-import { ExpressServer } from "./api";
-import { AppDataSource } from "./external/typeORM/config";
-import { TypeORMConnection } from "./external/typeORM/connection";
-
 import "dotenv/config";
+import { ExpressServer } from "./api";
+import { connectMongo } from "./config/mongo.connection"; // novo arquivo de conexão com o MongoDB
 
 async function main() {
   try {
-    await AppDataSource.initialize();
-    console.log("Data base running...");
+    await connectMongo(); // conecta ao MongoDB
+    console.log("MongoDB database running...");
 
-    // await AppDataSource.runMigrations();
-    // console.log("Migaration ok...");
-
-    const dbConnection = new TypeORMConnection();
-
-    const server = new ExpressServer(dbConnection);
+    const server = new ExpressServer(); // não precisa mais passar dbConnection
     server.registerRoutes();
 
     const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;

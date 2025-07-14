@@ -1,45 +1,48 @@
-import { DBConnection } from "../../interfaces/DBConnection";
+// src/modules/User/gateways/userGateway.ts
+
 import { User } from "../entities/user";
-import { UserRepository } from "../interfaces/repositories";
+import { UserRepository as IUserRepository } from "../interfaces/repositories";
+import { UserRepository } from "../../repositories/UserRepository";
 
-export class UserGateway implements UserRepository {
-  private dbConnection: DBConnection<User>;
-  private tableName = "users";
+export class UserGateway implements IUserRepository {
+  private userRepository: UserRepository;
 
-  constructor(dbConnection: DBConnection<any>) {
-    this.dbConnection = dbConnection;
+  constructor(userRepository: UserRepository) {
+    this.userRepository = userRepository;
   }
 
   async findByCPF(cpf: string): Promise<User | null> {
     try {
-      const userData = await this.dbConnection.findOne(this.tableName, { cpf });
+      const userData = await this.userRepository.findByCPF(cpf);
+      if (!userData) return null;
 
       return User.create(
-        userData?.id,
-        userData?.name,
-        userData?.cpf,
-        userData?.email
+        userData.id.toString(),
+        userData.name,
+        userData.cpf,
+        userData.email
       );
     } catch (error) {
-      throw error;
+      throw new Error(`Erro ao buscar usuário: ${error}`);
     }
   }
 
-  async create(userData: { name: string; cpf: string; email: string }) {
+  async create(data: { name: string; cpf: string; email: string }): Promise<User> {
     try {
-      const newUserData = await this.dbConnection.save(
-        this.tableName,
-        userData
-      );
+      const newUser = await this.userRepository.create(data);
 
-      return User.create(
-        newUserData?.id,
-        newUserData?.name,
-        newUserData?.cpf,
-        newUserData?.email
+      const createdUser = User.create(
+        newUser.id.toString(),
+        newUser.name,
+        newUser.cpf,
+        newUser.email
       );
+      if (!createdUser) {
+        throw new Error("Erro ao criar usuário: dados inválidos");
+      }
+      return createdUser;
     } catch (error) {
-      throw error;
+      throw new Error(`Erro ao criar usuário: ${error}`);
     }
   }
 }
