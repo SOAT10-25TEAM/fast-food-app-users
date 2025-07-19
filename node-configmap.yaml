@@ -4,4 +4,3 @@ metadata:
   name: app-config
 data:
   NODE_ENV: "development"
-  WEBHOOK_URL: "http://node-service:3002/soat-api/order/payment-webhook"
