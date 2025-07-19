@@ -4,6 +4,6 @@ import { swaggerSpecs } from "../config/swagger";
 
 const swaggerRouter = Router();
 
-swaggerRouter.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
+swaggerRouter.use("/fastfood-users-api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
 
 export { swaggerRouter };

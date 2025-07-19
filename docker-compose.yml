@@ -1,7 +1,7 @@
 version: "3.8"
 
 networks:
-  soatdb:
+  soatdbuser:
 
 services:
   mongo:
@@ -14,7 +14,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
     networks:
-      - soatdb
+      - soatdbuser
     volumes:
       - mongo_data:/data/db
     healthcheck:
@@ -37,7 +37,7 @@ services:
       - NODE_ENV=development
       - MONGO_URI=mongodb://mongodb:27017/fastfood-users
     networks:
-      - soatdb
+      - soatdbuser
     depends_on:
       mongo:
         condition: service_healthy
